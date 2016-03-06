@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Reproducible Research- Peer Assessment 1</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h2>Reproducible Research- Peer Assessment 1</h2>
+
+<h4>Julia Breitenbruch (March 6th, 2016)</h4>
+
+<h3>Loading and preprocessing of activity data</h3>
+
+<pre><code class="r">activity&lt;-read.csv(&quot;activity.csv&quot;,header=TRUE,sep=&quot;,&quot;)
+activity$date&lt;-as.Date(activity$date,format=&quot;%Y-%m-%d&quot;)
+</code></pre>
+
+<h3>Mean and median of total steps per day</h3>
+
+<pre><code class="r">library(dplyr)
+ TotalSteps&lt;-summarize(group_by(activity,date),totsteps=sum(steps))
+ head(TotalSteps)
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 2]
+## 
+##         date totsteps
+##       (date)    (int)
+## 1 2012-10-01       NA
+## 2 2012-10-02      126
+## 3 2012-10-03    11352
+## 4 2012-10-04    12116
+## 5 2012-10-05    13294
+## 6 2012-10-06    15420
+</code></pre>
+
+<pre><code class="r"> meanSteps&lt;-summary(TotalSteps$totsteps)[&quot;Mean&quot;]
+ meanSteps
+</code></pre>
+
+<pre><code>##  Mean 
+## 10770
+</code></pre>
+
+<pre><code class="r"> medianSteps&lt;-summary(TotalSteps$totsteps)[&quot;Median&quot;]
+ medianSteps
+</code></pre>
+
+<pre><code>## Median 
+##  10760
+</code></pre>
+
+<h3>Histogram of steps taken each day</h3>
+
+<pre><code class="r">library(ggplot2)
+TotalStepsPlot&lt;-ggplot(TotalSteps,aes(x=totsteps))
+TotalStepsPlot&lt;-TotalStepsPlot+geom_histogram(bins=40)
+print(TotalStepsPlot)
+</code></pre>
+
+<pre><code>## Warning: Removed 8 rows containing non-finite values (stat_bin).
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-3-1.png" alt="plot of chunk unnamed-chunk-3"></p>
+
+<h3>Average daily pattern</h3>
+
+<pre><code class="r">library(dplyr)
+AverageSteps&lt;-summarize(group_by(activity,interval),avsteps=mean(steps,na.rm=TRUE))
+head(AverageSteps)
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 2]
+## 
+##   interval   avsteps
+##      (int)     (dbl)
+## 1        0 1.7169811
+## 2        5 0.3396226
+## 3       10 0.1320755
+## 4       15 0.1509434
+## 5       20 0.0754717
+## 6       25 2.0943396
+</code></pre>
+
+<h3>Time interval with the maximal counts of steps</h3>
+
+<pre><code class="r">MaxSteps&lt;-summary(AverageSteps$avsteps)[&quot;Max.&quot;]
+MaxSteps
+</code></pre>
+
+<pre><code>##  Max. 
+## 206.2
+</code></pre>
+
+<pre><code class="r">MaxInterval&lt;-subset(AverageSteps,AverageSteps$avsteps&gt;200)
+MaxInterval$interval
+</code></pre>
+
+<pre><code>## [1] 835
+</code></pre>
+
+<h4>Result: The 5-minute-interval, which starts at 8.35 a.m., contains the maximal steps (206.2) on average across all the dates in the dataset.</h4>
+
+<h3>Time series plot</h3>
+
+<pre><code class="r">library(ggplot2)
+AverageStepsPlot&lt;-ggplot(AverageSteps,aes(interval,avsteps))
+AverageStepsPlot&lt;-AverageStepsPlot+geom_line()
+print(AverageStepsPlot)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-6-1.png" alt="plot of chunk unnamed-chunk-6"></p>
+
+<h3>Imputing missing values</h3>
+
+<pre><code class="r">table(complete.cases(activity))
+</code></pre>
+
+<pre><code>## 
+## FALSE  TRUE 
+##  2304 15264
+</code></pre>
+
+<p>Result: There are 2304 &quot;NA&quot;-values in the data set.</p>
+
+<h4>Imputing strategy: Impute missing values with the average number of steps for the respective interval across all the dates in the dataset:</h4>
+
+<pre><code class="r">ImputedData&lt;-activity
+ImputedData$steps&lt;-ifelse(is.na(ImputedData$steps),
+ AverageSteps$avsteps[match(ImputedData$interval,AverageSteps$interval)],ImputedData$steps)
+table(complete.cases(ImputedData))
+</code></pre>
+
+<pre><code>## 
+##  TRUE 
+## 17568
+</code></pre>
+
+<p>Result: ImputedData does not contain any &quot;NA&quot;-values.</p>
+
+<pre><code class="r">library(dplyr)
+ TotalStepsImputed&lt;-summarize(group_by(ImputedData,date),totsteps=sum(steps))
+ head(TotalStepsImputed)
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 2]
+## 
+##         date totsteps
+##       (date)    (dbl)
+## 1 2012-10-01 10766.19
+## 2 2012-10-02   126.00
+## 3 2012-10-03 11352.00
+## 4 2012-10-04 12116.00
+## 5 2012-10-05 13294.00
+## 6 2012-10-06 15420.00
+</code></pre>
+
+<h3>Histogram with imputed data</h3>
+
+<pre><code class="r"> library(ggplot2)
+ TotalStepsImputedPlot&lt;-ggplot(TotalStepsImputed,aes(x=totsteps))
+ TotalStepsImputedPlot&lt;-TotalStepsImputedPlot+geom_histogram(bins=40)
+ print(TotalStepsImputedPlot)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-10-1.png" alt="plot of chunk unnamed-chunk-10"></p>
+
+<h3>Mean and median of total steps per day (imputed data)</h3>
+
+<pre><code class="r">library(dplyr)
+ TotalImpSteps&lt;-summarize(group_by(ImputedData,date),totsteps=sum(steps))
+ head(TotalImpSteps)
+</code></pre>
+
+<pre><code>## Source: local data frame [6 x 2]
+## 
+##         date totsteps
+##       (date)    (dbl)
+## 1 2012-10-01 10766.19
+## 2 2012-10-02   126.00
+## 3 2012-10-03 11352.00
+## 4 2012-10-04 12116.00
+## 5 2012-10-05 13294.00
+## 6 2012-10-06 15420.00
+</code></pre>
+
+<pre><code class="r"> meanSteps&lt;-summary(TotalImpSteps$totsteps)[&quot;Mean&quot;]
+ meanSteps
+</code></pre>
+
+<pre><code>##  Mean 
+## 10770
+</code></pre>
+
+<pre><code class="r"> medianSteps&lt;-summary(TotalImpSteps$totsteps)[&quot;Median&quot;]
+ medianSteps
+</code></pre>
+
+<pre><code>## Median 
+##  10770
+</code></pre>
+
+<pre><code class="r">  SumNA&lt;-summarize(group_by(activity,date),totna=sum(is.na(steps)))
+ head(table(SumNA))
+</code></pre>
+
+<pre><code>##             totna
+## date         0 288
+##   2012-10-01 0   1
+##   2012-10-02 1   0
+##   2012-10-03 1   0
+##   2012-10-04 1   0
+##   2012-10-05 1   0
+##   2012-10-06 1   0
+</code></pre>
+
+<pre><code class="r"> SumNA&lt;-mutate(SumNA,nacat=1*(totna==288))
+ TotalNADays&lt;-summarize(SumNA,nadays=sum(nacat))
+ TotalNADays
+</code></pre>
+
+<pre><code>## Source: local data frame [1 x 1]
+## 
+##   nadays
+##    (dbl)
+## 1      8
+</code></pre>
+
+<p>Result: The mean has not changed. Furthermore,the above calculations show the following scenario:If any day has &quot;NA&quot;- entries, it has no other entries, in other words. The days in the dataset consist either exclusively of missing values or do not have any missing values at all.
+So every &quot;imputed&quot; day has a value of 10766.19, and there are 8 such days altogether. As the dataset consists of 61 days altogether, we have for the &quot;imputed&quot; mean:</p>
+
+<pre><code class="r">newmean&lt;-round((53*10770+8*10766.19)/61,1)
+newmean
+</code></pre>
+
+<pre><code>## [1] 10769.5
+</code></pre>
+
+<p>Hence, the fact that the imputed value is slightly below the old mean has almost no effect, taken into consideration that only 8 days were imputed, but 53 did not.Contrarily the median changes a little bit: Here the imputation has an effect: The imputated values are slightly higher than the &quot;old&quot; median, but as the median measures a rank, this has an effect in spite of the low number of imputed days.</p>
+
+<h3>Differences in activity patterns between weekdays and weekends</h3>
+
+<pre><code class="r">activity$day&lt;-weekdays(activity$date)
+weekday&lt;-c(&quot;Montag&quot;,&quot;Dienstag&quot;,&quot;Mittwoch&quot;,&quot;Donnerstag&quot;,&quot;Freitag&quot;)
+weekend&lt;-c(&quot;Samstag&quot;,&quot;Sonntag&quot;)
+activity$weekpart&lt;-ifelse(activity$day %in% weekday, &quot;weekday&quot;,&quot;weekend&quot;
+    )
+act1&lt;-subset(activity,weekpart==&quot;weekday&quot;)
+act2&lt;-subset(activity,weekpart==&quot;weekend&quot;)
+AvSteps1&lt;-mutate(summarize(group_by(act1,interval),avsteps=mean(steps,na.rm=TRUE)),weekpart=&quot;weekday&quot;)
+AvSteps2&lt;-mutate(summarize(group_by(act2,interval),avsteps=mean(steps,na.rm=TRUE)),weekpart=&quot;weekend&quot;)
+AvSteps&lt;-rbind(AvSteps1,AvSteps2)
+</code></pre>
+
+<h3>Creating facet plot</h3>
+
+<pre><code class="r">library(ggplot2)
+AvStepsPlot&lt;-ggplot(AvSteps,aes(interval,avsteps))
+AvStepsPlot&lt;-AvStepsPlot+geom_line()
+AvStepsPlot&lt;-AvStepsPlot+facet_grid(weekpart~.  )
+print(AvStepsPlot)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-14-1.png" alt="plot of chunk unnamed-chunk-14"></p>
+
+</body>
+
+</html>
