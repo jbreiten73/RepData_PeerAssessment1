@@ -1,25 +1,136 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "Reproducible Research- Peer Assessment 1"
+output: html_document
+author: Julia Breitenbruch
+date: March 6th, 2016
 ---
 
+## Reproducible Research- Peer Assessment 1
 
-## Loading and preprocessing the data
+#### Julia Breitenbruch (March 6th, 2016)
 
+### Loading and preprocessing of activity data
+```{r ,echo=TRUE}
+activity<-read.csv("activity.csv",header=TRUE,sep=",")
+activity$date<-as.Date(activity$date,format="%Y-%m-%d")
+```
 
+### Mean and median of total steps per day
 
-## What is mean total number of steps taken per day?
+```{r, echo=TRUE}
+library(dplyr)
+ TotalSteps<-summarize(group_by(activity,date),totsteps=sum(steps))
+ head(TotalSteps)
+ meanSteps<-summary(TotalSteps$totsteps)["Mean"]
+ meanSteps
+ medianSteps<-summary(TotalSteps$totsteps)["Median"]
+ medianSteps
+```
 
+### Histogram of steps taken each day
 
+```{r, echo=TRUE}
+library(ggplot2)
+TotalStepsPlot<-ggplot(TotalSteps,aes(x=totsteps))
+TotalStepsPlot<-TotalStepsPlot+geom_histogram(bins=40)
+print(TotalStepsPlot)
+        
+```
 
-## What is the average daily activity pattern?
+### Average daily pattern
+```{r, echo=TRUE}
+library(dplyr)
+AverageSteps<-summarize(group_by(activity,interval),avsteps=mean(steps,na.rm=TRUE))
+head(AverageSteps)
+```
 
+### Time interval with the maximal counts of steps
+```{r,echo=TRUE}
+MaxSteps<-summary(AverageSteps$avsteps)["Max."]
+MaxSteps
+MaxInterval<-subset(AverageSteps,AverageSteps$avsteps>200)
+MaxInterval$interval
+```
+#### Result: The 5-minute-interval, which starts at 8.35 a.m., contains the maximal steps (206.2) on average across all the dates in the dataset.
+### Time series plot
+```{r,echo=TRUE}
+library(ggplot2)
+AverageStepsPlot<-ggplot(AverageSteps,aes(interval,avsteps))
+AverageStepsPlot<-AverageStepsPlot+geom_line()
+print(AverageStepsPlot)
+```
+### Imputing missing values
+```{r,echo=TRUE}
+table(complete.cases(activity))
+```
 
+Result: There are 2304 "NA"-values in the data set.
+#### Imputing strategy: Impute missing values with the average number of steps for the respective interval across all the dates in the dataset:
+```{R,echo=TRUE}
+ImputedData<-activity
+ImputedData$steps<-ifelse(is.na(ImputedData$steps),
+ AverageSteps$avsteps[match(ImputedData$interval,AverageSteps$interval)],ImputedData$steps)
+table(complete.cases(ImputedData))
+```
+Result: ImputedData does not contain any "NA"-values.
+```{R,echo=TRUE}
+library(dplyr)
+ TotalStepsImputed<-summarize(group_by(ImputedData,date),totsteps=sum(steps))
+ head(TotalStepsImputed)
+```
+### Histogram with imputed data 
 
-## Imputing missing values
+ ```{r, echo=TRUE}
+library(ggplot2)
+TotalStepsImputedPlot<-ggplot(TotalStepsImputed,aes(x=totsteps))
+TotalStepsImputedPlot<-TotalStepsImputedPlot+geom_histogram(bins=40)
+print(TotalStepsImputedPlot)
+        
+```
+### Mean and median of total steps per day (imputed data)
 
+```{r, echo=TRUE}
+library(dplyr)
+ TotalImpSteps<-summarize(group_by(ImputedData,date),totsteps=sum(steps))
+ head(TotalImpSteps)
 
+ meanSteps<-summary(TotalImpSteps$totsteps)["Mean"]
+ meanSteps
+ medianSteps<-summary(TotalImpSteps$totsteps)["Median"]
+ medianSteps
 
-## Are there differences in activity patterns between weekdays and weekends?
+  SumNA<-summarize(group_by(activity,date),totna=sum(is.na(steps)))
+ head(table(SumNA))
+ SumNA<-mutate(SumNA,nacat=1*(totna==288))
+ TotalNADays<-summarize(SumNA,nadays=sum(nacat))
+ TotalNADays
+```
+Result: The mean has not changed. Furthermore,the above calculations show the following scenario:If any day has "NA"- entries, it has no other entries, in other words. The days in the dataset consist either exclusively of missing values or do not have any missing values at all.
+So every "imputed" day has a value of 10766.19, and there are 8 such days altogether. As the dataset consists of 61 days altogether, we have for the "imputed" mean:
+```{R,echo=TRUE}
+newmean<-round((53*10770+8*10766.19)/61,1)
+newmean
+```
+Hence, the fact that the imputed value is slightly below the old mean has almost no effect, taken into consideration that only 8 days were imputed, but 53 did not.Contrarily the median changes a little bit: Here the imputation has an effect: The imputated values are slightly higher than the "old" median, but as the median measures a rank, this has an effect in spite of the low number of imputed days.
+
+### Differences in activity patterns between weekdays and weekends
+```{R,echo=TRUE}
+activity$day<-weekdays(activity$date)
+weekday<-c("Montag","Dienstag","Mittwoch","Donnerstag","Freitag")
+weekend<-c("Samstag","Sonntag")
+activity$weekpart<-ifelse(activity$day %in% weekday, "weekday","weekend"
+    )
+act1<-subset(activity,weekpart=="weekday")
+act2<-subset(activity,weekpart=="weekend")
+AvSteps1<-mutate(summarize(group_by(act1,interval),avsteps=mean(steps,na.rm=TRUE)),weekpart="weekday")
+AvSteps2<-mutate(summarize(group_by(act2,interval),avsteps=mean(steps,na.rm=TRUE)),weekpart="weekend")
+AvSteps<-rbind(AvSteps1,AvSteps2)
+```
+### Creating facet plot
+```{R,echo=TRUE}
+library(ggplot2)
+AvStepsPlot<-ggplot(AvSteps,aes(interval,avsteps))
+AvStepsPlot<-AvStepsPlot+geom_line()
+AvStepsPlot<-AvStepsPlot+facet_grid(weekpart~.  )
+print(AvStepsPlot)
+```
