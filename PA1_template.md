@@ -72,7 +72,7 @@ print(TotalStepsPlot)
 ## Warning: Removed 8 rows containing non-finite values (stat_bin).
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png)
+![plot of chunk histogram](figure/histogram-1.png)
 
 ### Average daily pattern
 
@@ -125,7 +125,7 @@ AverageStepsPlot<-AverageStepsPlot+geom_line()
 print(AverageStepsPlot)
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png)
+![plot of chunk time_series](figure/time_series-1.png)
 ### Imputing missing values
 
 ```r
@@ -183,7 +183,7 @@ library(dplyr)
  print(TotalStepsImputedPlot)
  ```
  
- ![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png)
+ ![plot of chunk histogram_imputed](figure/histogram_imputed-1.png)
 ### Mean and median of total steps per day (imputed data)
 
 
@@ -292,4 +292,4 @@ AvStepsPlot<-AvStepsPlot+facet_grid(weekpart~.  )
 print(AvStepsPlot)
 ```
 
-![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-1.png)
+![plot of chunk facet_plot](figure/facet_plot-1.png)
