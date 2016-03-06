@@ -29,7 +29,7 @@ library(dplyr)
 
 ### Histogram of steps taken each day
 
-```{r, echo=TRUE}
+```{r histogram, echo=TRUE}
 library(ggplot2)
 TotalStepsPlot<-ggplot(TotalSteps,aes(x=totsteps))
 TotalStepsPlot<-TotalStepsPlot+geom_histogram(bins=40)
@@ -53,7 +53,7 @@ MaxInterval$interval
 ```
 #### Result: The 5-minute-interval, which starts at 8.35 a.m., contains the maximal steps (206.2) on average across all the dates in the dataset.
 ### Time series plot
-```{r,echo=TRUE}
+```{r time_series,echo=TRUE}
 library(ggplot2)
 AverageStepsPlot<-ggplot(AverageSteps,aes(interval,avsteps))
 AverageStepsPlot<-AverageStepsPlot+geom_line()
@@ -80,7 +80,7 @@ library(dplyr)
 ```
 ### Histogram with imputed data 
 
- ```{r, echo=TRUE}
+ ```{r histogram_imputed, echo=TRUE}
 library(ggplot2)
 TotalStepsImputedPlot<-ggplot(TotalStepsImputed,aes(x=totsteps))
 TotalStepsImputedPlot<-TotalStepsImputedPlot+geom_histogram(bins=40)
@@ -127,7 +127,7 @@ AvSteps2<-mutate(summarize(group_by(act2,interval),avsteps=mean(steps,na.rm=TRUE
 AvSteps<-rbind(AvSteps1,AvSteps2)
 ```
 ### Creating facet plot
-```{R,echo=TRUE}
+```{R facet_plot,echo=TRUE}
 library(ggplot2)
 AvStepsPlot<-ggplot(AvSteps,aes(interval,avsteps))
 AvStepsPlot<-AvStepsPlot+geom_line()
